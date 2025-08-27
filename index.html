@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sổ Điểm Tốt</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            transition: all 0.3s ease;
+        }
+        .dark .container {
+            background-color: #1e293b;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #0f172a;
+            transition: color 0.3s ease;
+        }
+        .dark .card-title {
+            color: #f1f5f9;
+        }
+        .card-subtitle {
+            font-size: 1rem;
+            color: #64748b;
+            transition: color 0.3s ease;
+        }
+        .dark .card-subtitle {
+            color: #94a3b8;
+        }
+        .form-control {
+            border: 1px solid #cbd5e1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            width: 100%;
+            transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+            outline: none;
+        }
+        .form-control:focus {
+            border-color: #4f46e5;
+        }
+        .dark .form-control {
+            background-color: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .btn-primary {
+            background-color: #4f46e5;
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background-color: #4338ca;
+        }
+        .btn-green {
+            background-color: #22c55e;
+            color: #ffffff;
+        }
+        .btn-green:hover {
+            background-color: #16a34a;
+        }
+        .btn-red {
+            background-color: #ef4444;
+            color: #ffffff;
+        }
+        .btn-red:hover {
+            background-color: #dc2626;
+        }
+        .user-card {
+            background-color: #f1f5f9;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+        .dark .user-card {
+            background-color: #334155;
+        }
+        .score-box {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+        .history-item {
+            background-color: #f8fafc;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+        .dark .history-item {
+            background-color: #1e293b;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            transition: background-color 0.3s;
+        }
+        .dark .modal-content {
+            background-color: #1e293b;
+        }
+        /* Custom modal for score input */
+        #score-input-modal .modal-content {
+            padding: 20px;
+        }
+        #score-input-modal h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #0f172a;
+        }
+        .dark #score-input-modal h2 {
+            color: #f1f5f9;
+        }
+        #score-input-modal .user-select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            margin-bottom: 15px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark #score-input-modal .user-select {
+            background-color: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-slate-900 flex items-center justify-center min-h-screen">
+
+<div id="app" class="container">
+    <!-- Theme Toggle Button -->
+    <div class="flex justify-end mb-4">
+        <button id="theme-toggle" class="p-2 rounded-full text-gray-800 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 focus:outline-none">
+            <svg id="sun-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <svg id="moon-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+        </button>
+    </div>
+
+    <!-- Login screen -->
+    <div id="login-screen" class="space-y-4">
+        <div class="card-header">
+            <h1 class="card-title">Sổ Điểm Tốt</h1>
+            <p class="card-subtitle">Thưởng điểm và theo dõi các thành viên!</p>
+        </div>
+        <input type="text" id="username-input" class="form-control" placeholder="Tên đăng nhập">
+        <input type="password" id="password-input" class="form-control" placeholder="Mật khẩu">
+        <button id="login-button" class="btn btn-primary w-full">Đăng nhập</button>
+        <button id="register-link" class="btn w-full bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600">Đăng ký</button>
+        <div id="login-message" class="text-center text-red-500 font-medium hidden"></div>
+    </div>
+
+    <!-- Register screen -->
+    <div id="register-screen" class="hidden space-y-4">
+        <div class="card-header">
+            <h1 class="card-title">Đăng ký tài khoản</h1>
+            <p class="card-subtitle">Tạo tài khoản để xem bảng điểm.</p>
+        </div>
+        <input type="text" id="register-username" class="form-control" placeholder="Tên người dùng mới">
+        <input type="password" id="register-password" class="form-control" placeholder="Mật khẩu">
+        <button id="register-button" class="btn btn-primary w-full">Đăng ký</button>
+        <button id="back-to-login" class="btn w-full bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600">Quay lại đăng nhập</button>
+        <div id="register-message" class="text-center text-red-500 font-medium hidden"></div>
+    </div>
+
+    <!-- Admin screen -->
+    <div id="admin-screen" class="hidden">
+        <div class="card-header flex justify-between items-center">
+            <h1 class="card-title">Quản lý thành viên</h1>
+            <button id="logout-button-admin-1" class="btn bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600">Đăng xuất</button>
+        </div>
+        <div class="mb-4">
+            <input type="text" id="new-user-name" class="form-control" placeholder="Tên thành viên mới">
+        </div>
+        <button id="add-user-button" class="btn btn-green w-full mb-6">Thêm thành viên</button>
+        <div id="user-list">
+            <!-- User list will be rendered here -->
+        </div>
+        <div class="mt-8">
+            <h2 class="text-xl font-bold text-center text-gray-800 dark:text-gray-200 mb-4">Lịch Sử Hoạt Động</h2>
+            <div id="history-log-admin" class="space-y-2">
+                <!-- History log will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Main user screen -->
+    <div id="main-screen" class="hidden">
+        <div class="card-header">
+            <h1 class="card-title">Bảng Điểm</h1>
+            <p id="user-role-info" class="card-subtitle">Bạn chỉ có quyền xem</p>
+        </div>
+        <div id="user-points-display" class="space-y-4">
+            <!-- User points will be rendered here -->
+        </div>
+        <div class="mt-8">
+            <h2 class="text-xl font-bold text-center text-gray-800 dark:text-gray-200 mb-4">Lịch Sử Hoạt Động</h2>
+            <div id="history-log" class="space-y-2">
+                <!-- History log will be rendered here -->
+            </div>
+        </div>
+        <div class="flex justify-center mt-6">
+            <button id="logout-button-user" class="btn bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600">Đăng xuất</button>
+        </div>
+    </div>
+
+    <!-- Main admin screen -->
+    <div id="admin-main-screen" class="hidden">
+        <div class="card-header">
+            <h1 class="card-title">Bảng Điểm</h1>
+        </div>
+        <div id="score-buttons" class="flex flex-col sm:flex-row justify-center gap-4 mb-6">
+            <button id="custom-add-btn" class="btn btn-green">Cộng điểm tùy chỉnh</button>
+            <button id="custom-subtract-btn" class="btn btn-red">Trừ điểm tùy chỉnh</button>
+            <button id="add-member-main-btn" class="btn btn-primary">Thêm thành viên</button>
+        </div>
+        <div id="user-points-display-admin" class="space-y-4">
+            <!-- User points will be rendered here -->
+        </div>
+        <div class="mt-8">
+            <h2 class="text-xl font-bold text-center text-gray-800 dark:text-gray-200 mb-4">Lịch Sử Hoạt Động</h2>
+            <div id="history-log-main-admin" class="space-y-2">
+                <!-- History log will be rendered here -->
+            </div>
+        </div>
+        <div class="flex justify-center mt-6">
+            <button id="logout-button-admin-2" class="btn bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-600">Đăng xuất</button>
+        </div>
+    </div>
+
+    <!-- Modal for messages -->
+    <div id="message-modal" class="modal hidden">
+        <div class="modal-content dark:bg-gray-800">
+            <p id="message-text" class="text-center text-lg font-medium mb-4 dark:text-gray-200"></p>
+            <button id="close-modal" class="btn btn-primary w-full">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Custom score input modal -->
+    <div id="score-input-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="score-modal-title">Cộng điểm tùy chỉnh</h2>
+            <select id="user-select" class="user-select">
+                <!-- User options will be rendered here -->
+            </select>
+            <input type="number" id="score-points-input" class="form-control mb-4" placeholder="Số điểm (ví dụ: 15)">
+            <input type="text" id="score-action-input" class="form-control mb-4" placeholder="Lý do (ví dụ: Hoàn thành bài tập)">
+            <button id="submit-score-btn" class="btn btn-green w-full mb-2">Xác nhận</button>
+            <button id="cancel-score-btn" class="btn bg-gray-300 text-gray-700 dark:bg-gray-700 dark:text-gray-200 w-full">Hủy</button>
+        </div>
+    </div>
+    
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, addDoc, serverTimestamp, getDocs, query, where, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Firebase configuration - automatically provided by the environment
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    // State variables
+    let userId = null;
+    let isAdmin = false;
+
+    // DOM Elements
+    const loginScreen = document.getElementById('login-screen');
+    const registerScreen = document.getElementById('register-screen');
+    const adminScreen = document.getElementById('admin-screen');
+    const mainScreen = document.getElementById('main-screen');
+    const adminMainScreen = document.getElementById('admin-main-screen');
+    const loginButton = document.getElementById('login-button');
+    const registerLink = document.getElementById('register-link');
+    const backToLoginButton = document.getElementById('back-to-login');
+    const registerButton = document.getElementById('register-button');
+    const logoutButtonAdmin1 = document.getElementById('logout-button-admin-1');
+    const logoutButtonAdmin2 = document.getElementById('logout-button-admin-2');
+    const logoutButtonUser = document.getElementById('logout-button-user');
+    const usernameInput = document.getElementById('username-input');
+    const passwordInput = document.getElementById('password-input');
+    const loginMessage = document.getElementById('login-message');
+    const registerUsernameInput = document.getElementById('register-username');
+    const registerPasswordInput = document.getElementById('register-password');
+    const registerMessage = document.getElementById('register-message');
+    const addUserButton = document.getElementById('add-user-button');
+    const newUserNameInput = document.getElementById('new-user-name');
+    const userListDiv = document.getElementById('user-list');
+    const userPointsDisplay = document.getElementById('user-points-display');
+    const userPointsDisplayAdmin = document.getElementById('user-points-display-admin');
+    const historyLog = document.getElementById('history-log');
+    const historyLogAdmin = document.getElementById('history-log-admin');
+    const historyLogMainAdmin = document.getElementById('history-log-main-admin');
+    const addMemberMainBtn = document.getElementById('add-member-main-btn');
+    const messageText = document.getElementById('message-text');
+
+    // Custom Score Modal Elements
+    const customAddBtn = document.getElementById('custom-add-btn');
+    const customSubtractBtn = document.getElementById('custom-subtract-btn');
+    const scoreInputModal = document.getElementById('score-input-modal');
+    const scoreModalTitle = document.getElementById('score-modal-title');
+    const userSelect = document.getElementById('user-select');
+    const scorePointsInput = document.getElementById('score-points-input');
+    const scoreActionInput = document.getElementById('score-action-input');
+    const submitScoreBtn = document.getElementById('submit-score-btn');
+    const cancelScoreBtn = document.getElementById('cancel-score-btn');
+
+    // Theme toggle elements
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+
+    // User and score data (fetched from Firestore)
+    let users = {};
+    let scores = {};
+
+    // Function to show a message modal
+    const showMessage = (message) => {
+        messageText.textContent = message;
+        document.getElementById('message-modal').classList.remove('hidden');
+    };
+
+    // Function to hide a message modal
+    document.getElementById('close-modal').addEventListener('click', () => {
+        document.getElementById('message-modal').classList.add('hidden');
+    });
+
+    // Function to show the custom score input modal
+    const showScoreInputModal = (isAddMode = true) => {
+        scoreModalTitle.textContent = isAddMode ? 'Cộng điểm tùy chỉnh' : 'Trừ điểm tùy chỉnh';
+        submitScoreBtn.classList.toggle('btn-green', isAddMode);
+        submitScoreBtn.classList.toggle('btn-red', !isAddMode);
+        scorePointsInput.value = '';
+        scoreActionInput.value = '';
+        userSelect.innerHTML = '';
+        Object.keys(users).forEach(id => {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = users[id];
+            userSelect.appendChild(option);
+        });
+        scoreInputModal.classList.remove('hidden');
+    };
+
+    // Function to hide the custom score input modal
+    if (cancelScoreBtn) {
+        cancelScoreBtn.addEventListener('click', () => {
+            scoreInputModal.classList.add('hidden');
+        });
+    }
+
+    // Handle custom add button click
+    if (customAddBtn) {
+        customAddBtn.addEventListener('click', () => {
+            showScoreInputModal(true);
+        });
+    }
+
+    // Handle custom subtract button click
+    if (customSubtractBtn) {
+        customSubtractBtn.addEventListener('click', () => {
+            showScoreInputModal(false);
+        });
+    }
+
+    // Handle score submission
+    if (submitScoreBtn) {
+        submitScoreBtn.addEventListener('click', () => {
+            const selectedUserId = userSelect.value;
+            let points = parseInt(scorePointsInput.value);
+            const action = scoreActionInput.value.trim();
+
+            if (isNaN(points) || action === '') {
+                showMessage('Vui lòng nhập số điểm hợp lệ và lý do.');
+                return;
+            }
+
+            if (scoreModalTitle.textContent === 'Trừ điểm tùy chỉnh') {
+                points = -Math.abs(points);
+            }
+
+            addScore(selectedUserId, points, action);
+            scoreInputModal.classList.add('hidden');
+        });
+    }
+
+    // Handle user registration
+    const handleRegister = async () => {
+        const username = registerUsernameInput.value.trim();
+        const password = registerPasswordInput.value.trim();
+
+        if (username === '' || password === '') {
+            registerMessage.textContent = 'Vui lòng nhập đủ tên người dùng và mật khẩu.';
+            registerMessage.classList.remove('hidden');
+            return;
+        }
+
+        try {
+            const usersRef = collection(db, `artifacts/${appId}/public/data/registered_users`);
+            const q = query(usersRef, where('username', '==', username));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                registerMessage.textContent = 'Tên người dùng đã tồn tại. Vui lòng chọn tên khác.';
+                registerMessage.classList.remove('hidden');
+                return;
+            }
+
+            await addDoc(usersRef, {
+                username: username,
+                password: password,
+                role: 'user'
+            });
+            showMessage('Đăng ký thành công! Vui lòng đăng nhập.');
+            renderScreen('login');
+        } catch (error) {
+            console.error("Lỗi khi đăng ký: ", error);
+            registerMessage.textContent = 'Đăng ký thất bại. Vui lòng thử lại.';
+            registerMessage.classList.remove('hidden');
+        }
+    };
+    if (registerButton) {
+        registerButton.addEventListener('click', handleRegister);
+    }
+    
+    // Handle user login
+    const handleLogin = async () => {
+        const username = usernameInput.value;
+        const password = passwordInput.value;
+
+        // Check for hardcoded admin account
+        if (username === 'adminvn' && password === 'admin12') {
+            isAdmin = true;
+            renderScreen();
+            return;
+        } 
+        
+        // Check for registered user accounts
+        try {
+            const usersRef = collection(db, `artifacts/${appId}/public/data/registered_users`);
+            const q = query(usersRef, where('username', '==', username), where('password', '==', password));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                isAdmin = false;
+                renderScreen();
+            } else {
+                loginMessage.textContent = 'Sai tài khoản hoặc mật khẩu!';
+                loginMessage.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error("Lỗi khi đăng nhập: ", error);
+            loginMessage.textContent = 'Lỗi đăng nhập. Vui lòng thử lại.';
+            loginMessage.classList.remove('hidden');
+        }
+    };
+    loginButton.addEventListener('click', handleLogin);
+    
+    // Handle user logout
+    const handleLogout = () => {
+        isAdmin = false;
+        renderScreen('login');
+    };
+    if (logoutButtonAdmin1) {
+        logoutButtonAdmin1.addEventListener('click', handleLogout);
+    }
+    if (logoutButtonAdmin2) {
+        logoutButtonAdmin2.addEventListener('click', handleLogout);
+    }
+    if (logoutButtonUser) {
+        logoutButtonUser.addEventListener('click', handleLogout);
+    }
+    
+    // Handle screen transitions
+    if (registerLink) {
+        registerLink.addEventListener('click', () => renderScreen('register'));
+    }
+    if (backToLoginButton) {
+        backToLoginButton.addEventListener('click', () => renderScreen('login'));
+    }
+
+    // Render the UI based on login state
+    const renderScreen = (mode = 'initial') => {
+        loginScreen.classList.add('hidden');
+        registerScreen.classList.add('hidden');
+        adminScreen.classList.add('hidden');
+        mainScreen.classList.add('hidden');
+        adminMainScreen.classList.add('hidden');
+        
+        if (mode === 'login' || !auth.currentUser) {
+            loginScreen.classList.remove('hidden');
+            usernameInput.value = '';
+            passwordInput.value = '';
+            loginMessage.classList.add('hidden');
+        } else if (mode === 'register') {
+            registerScreen.classList.remove('hidden');
+            registerUsernameInput.value = '';
+            registerPasswordInput.value = '';
+            registerMessage.classList.add('hidden');
+        } else if (isAdmin) {
+            adminScreen.classList.remove('hidden');
+            renderAdminUsers();
+            adminMainScreen.classList.remove('hidden');
+            renderUsers(userPointsDisplayAdmin);
+        } else {
+            mainScreen.classList.remove('hidden');
+            renderUsers(userPointsDisplay);
+        }
+    };
+
+    // Render user list on the admin screen
+    const renderAdminUsers = () => {
+        userListDiv.innerHTML = '';
+        const userIds = Object.keys(users);
+        userIds.forEach(id => {
+            const userName = users[id];
+            const userCard = document.createElement('div');
+            userCard.className = 'user-card flex flex-col md:flex-row justify-between items-center';
+            userCard.innerHTML = `
+                <div class="flex-1 w-full md:w-auto mb-2 md:mb-0">
+                    <span class="text-gray-800 dark:text-gray-200 font-medium" data-id="${id}">${userName}</span>
+                    <input type="text" value="${userName}" class="edit-user-input form-control hidden mt-2 md:mt-0">
+                </div>
+                <div class="flex space-x-2">
+                    <button class="edit-user-btn btn btn-primary text-sm">Sửa tên</button>
+                    <button class="save-user-btn btn btn-green text-sm hidden">Lưu</button>
+                    <button class="cancel-edit-btn btn bg-gray-300 dark:bg-gray-700 dark:text-gray-200 text-sm hidden">Hủy</button>
+                    <button class="delete-user-btn btn btn-red text-sm" data-id="${id}">Xóa</button>
+                </div>
+            `;
+            userListDiv.appendChild(userCard);
+        });
+
+        document.querySelectorAll('.delete-user-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const idToDelete = e.target.getAttribute('data-id');
+                try {
+                    await deleteDoc(doc(db, `artifacts/${appId}/public/data/users`, idToDelete));
+                    const q = query(collection(db, `artifacts/${appId}/public/data/history`), where('userId', '==', idToDelete));
+                    const docsToDelete = await getDocs(q);
+                    docsToDelete.forEach(doc => deleteDoc(doc.ref));
+                    showMessage('Đã xóa thành viên!');
+                } catch (error) {
+                    console.error("Lỗi khi xóa thành viên: ", error);
+                    showMessage('Lỗi khi xóa thành viên.');
+                }
+            });
+        });
+
+        document.querySelectorAll('.edit-user-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const userCard = e.target.closest('.user-card');
+                const userNameSpan = userCard.querySelector('span');
+                const editInput = userCard.querySelector('.edit-user-input');
+                const saveBtn = userCard.querySelector('.save-user-btn');
+                const cancelBtn = userCard.querySelector('.cancel-edit-btn');
+                
+                userNameSpan.classList.add('hidden');
+                editInput.classList.remove('hidden');
+                e.target.classList.add('hidden');
+                saveBtn.classList.remove('hidden');
+                cancelBtn.classList.remove('hidden');
+            });
+        });
+
+        document.querySelectorAll('.cancel-edit-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const userCard = e.target.closest('.user-card');
+                const userNameSpan = userCard.querySelector('span');
+                const editInput = userCard.querySelector('.edit-user-input');
+                const editBtn = userCard.querySelector('.edit-user-btn');
+                const saveBtn = userCard.querySelector('.save-user-btn');
+                
+                userNameSpan.classList.remove('hidden');
+                editInput.classList.add('hidden');
+                editBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+                e.target.classList.add('hidden');
+            });
+        });
+
+        document.querySelectorAll('.save-user-btn').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const userCard = e.target.closest('.user-card');
+                const userId = userCard.querySelector('.edit-user-input').getAttribute('data-id');
+                const newName = userCard.querySelector('.edit-user-input').value.trim();
+
+                if (newName === '') {
+                    showMessage('Tên thành viên không được để trống.');
+                    return;
+                }
+
+                try {
+                    await updateDoc(doc(db, `artifacts/${appId}/public/data/users`, userId), {
+                        name: newName
+                    });
+                    showMessage(`Đã đổi tên thành viên thành "${newName}"!`);
+                } catch (error) {
+                    console.error("Lỗi khi đổi tên: ", error);
+                    showMessage('Lỗi khi đổi tên thành viên.');
+                }
+            });
+        });
+    };
+
+    // Render user scores on the main screen
+    const renderUsers = (container) => {
+        container.innerHTML = '';
+        const userIds = Object.keys(users);
+        if (userIds.length === 0) {
+            container.innerHTML = '<p class="text-center text-gray-500">Chưa có thành viên nào.</p>';
+            return;
+        }
+
+        userIds.forEach(id => {
+            const userName = users[id];
+            const userScore = scores[id] || 0;
+            const userCard = document.createElement('div');
+            userCard.className = 'user-card flex flex-col md:flex-row items-center justify-between mb-4';
+            
+            userCard.innerHTML = `
+                <div class="flex items-center space-x-4 mb-2 md:mb-0">
+                    <span class="text-lg font-medium text-gray-800 dark:text-gray-200">${userName}</span>
+                    <span class="score-box">${userScore}</span>
+                </div>
+            `;
+            container.appendChild(userCard);
+        });
+    };
+    
+    // Render the history log
+    const renderHistory = (container, historyData) => {
+        container.innerHTML = '';
+        if (!historyData || historyData.length === 0) {
+            container.innerHTML = '<p class="text-center text-gray-500">Lịch sử sẽ hiển thị tại đây...</p>';
+            return;
+        }
+        
+        // Sort by timestamp
+        historyData.sort((a, b) => {
+            if (!a.timestamp) return 1;
+            if (!b.timestamp) return -1;
+            return b.timestamp.seconds - a.timestamp.seconds;
+        });
+
+        historyData.forEach(item => {
+            const userName = users[item.userId] || 'Người dùng không xác định';
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            const date = item.timestamp ? new Date(item.timestamp.seconds * 1000).toLocaleString('vi-VN') : 'Vừa mới';
+            historyItem.innerHTML = `
+                <span class="text-gray-700 dark:text-gray-200"><strong>${userName}</strong> đã nhận ${item.points > 0 ? '+' : ''}${item.points} điểm cho "${item.action}"</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">${date}</span>
+            `;
+            container.appendChild(historyItem);
+        });
+    };
+    
+    // Add a new user
+    if (addUserButton) {
+        addUserButton.addEventListener('click', async () => {
+            const userName = newUserNameInput.value.trim();
+            if (userName === '') {
+                showMessage('Vui lòng nhập tên thành viên.');
+                return;
+            }
+            try {
+                const usersRef = collection(db, `artifacts/${appId}/public/data/users`);
+                await addDoc(usersRef, { name: userName });
+                showMessage(`Đã thêm thành viên "${userName}"!`);
+                newUserNameInput.value = '';
+            } catch (error) {
+                console.error("Lỗi khi thêm người dùng: ", error);
+                showMessage('Lỗi khi thêm thành viên.');
+            }
+        });
+    }
+
+    // Add member from admin main screen
+    if (addMemberMainBtn) {
+        addMemberMainBtn.addEventListener('click', async () => {
+            const newName = prompt("Nhập tên thành viên mới:");
+            if (newName && newName.trim() !== "") {
+                try {
+                    const usersRef = collection(db, `artifacts/${appId}/public/data/users`);
+                    await addDoc(usersRef, { name: newName.trim() });
+                    showMessage(`Đã thêm thành viên "${newName}"!`);
+                } catch (error) {
+                    console.error("Lỗi khi thêm người dùng: ", error);
+                    showMessage('Lỗi khi thêm thành viên.');
+                }
+            } else if (newName !== null) {
+                showMessage("Tên thành viên không được để trống.");
+            }
+        });
+    }
+
+    // Add score to a user
+    const addScore = async (userId, points, action) => {
+        try {
+            // Update score
+            const scoreRef = doc(db, `artifacts/${appId}/public/data/scores`, userId);
+            const scoreDoc = await getDoc(scoreRef);
+            let newScore = (scoreDoc.exists() ? scoreDoc.data().score : 0) + points;
+            await setDoc(scoreRef, { score: newScore }, { merge: true });
+
+            // Record history
+            const historyRef = collection(db, `artifacts/${appId}/public/data/history`);
+            await addDoc(historyRef, {
+                userId,
+                action,
+                points,
+                timestamp: serverTimestamp()
+            });
+            showMessage(`Đã cập nhật ${points} điểm cho ${users[userId]}`);
+        } catch (error) {
+            console.error("Lỗi khi cập nhật điểm: ", error);
+            showMessage('Lỗi khi cập nhật điểm.');
+        }
+    };
+
+    // Listen for Firestore changes
+    const setupFirestoreListeners = () => {
+        // Listen to user list changes
+        onSnapshot(collection(db, `artifacts/${appId}/public/data/users`), (snapshot) => {
+            users = {};
+            snapshot.forEach(doc => {
+                users[doc.id] = doc.data().name;
+            });
+            renderScreen('data_update');
+        });
+        
+        // Listen to score changes
+        onSnapshot(collection(db, `artifacts/${appId}/public/data/scores`), (snapshot) => {
+            scores = {};
+            snapshot.forEach(doc => {
+                scores[doc.id] = doc.data().score;
+            });
+            renderScreen('data_update');
+        });
+
+        // Listen to history changes
+        onSnapshot(collection(db, `artifacts/${appId}/public/data/history`), (snapshot) => {
+            const historyData = [];
+            snapshot.forEach(doc => {
+                historyData.push(doc.data());
+            });
+            if (isAdmin) {
+                renderHistory(historyLogAdmin, historyData);
+                renderHistory(historyLogMainAdmin, historyData);
+            } else {
+                renderHistory(historyLog, historyData);
+            }
+        });
+    };
+
+    // Initialize the app and handle initial authentication
+    const initApp = async () => {
+        try {
+            const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+            if (token) {
+                await signInWithCustomToken(auth, token);
+            } else {
+                await signInAnonymously(auth);
+            }
+            userId = auth.currentUser.uid;
+            console.log("Đã đăng nhập thành công. User ID:", userId);
+            setupFirestoreListeners();
+            renderScreen('login');
+        } catch (error) {
+            console.error("Lỗi đăng nhập:", error);
+        }
+    };
+    
+    // --- Dark/Light Mode Logic ---
+    const htmlElement = document.documentElement;
+    const isDarkMode = localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    // Set initial theme based on localStorage or system preference
+    if (isDarkMode) {
+        htmlElement.classList.add('dark');
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+    } else {
+        htmlElement.classList.remove('dark');
+        sunIcon.classList.remove('hidden');
+        moonIcon.classList.add('hidden');
+    }
+
+    // Toggle theme on button click
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                sunIcon.classList.remove('hidden');
+                moonIcon.classList.add('hidden');
+            } else {
+                htmlElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                sunIcon.classList.add('hidden');
+                moonIcon.classList.remove('hidden');
+            }
+        });
+    }
+
+    window.onload = initApp;
+
+</script>
+</body>
+</html>
